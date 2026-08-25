@@ -168,9 +168,9 @@ export default function BikerQuestionnaire() {
           <p>{publicCount} {publicCount === 1 ? "respuesta autorizada" : "respuestas autorizadas"} para tu perfil.</p>
         </div>
         <nav className="questionnaire-navigation">
-          {bikerSections.map((section, index) => (
+          {bikerSections.map((section) => (
             <a href={`#${section.id}`} key={section.id}>
-              <span>{String(index + 1).padStart(2, "0")}</span>{section.title}
+              {section.title}
             </a>
           ))}
         </nav>
@@ -184,10 +184,10 @@ export default function BikerQuestionnaire() {
           <p>Si usas un dispositivo compartido, descarga tu historia y después borra el borrador.</p>
         </div>
 
-        {bikerSections.map((section, sectionIndex) => (
+        {bikerSections.map((section) => (
           <section className="questionnaire-section" id={section.id} key={section.id}>
             <div className="questionnaire-section-heading">
-              <p className="eyebrow">{String(sectionIndex + 1).padStart(2, "0")} · Tu historia biker</p>
+              <p className="eyebrow">Tu historia biker</p>
               <h2>{section.title}</h2>
               <p>{section.introduction}</p>
             </div>

@@ -1,5 +1,27 @@
 {
   "version": "7",
   "dialect": "sqlite",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1787592673394,
+      "tag": "0000_natural_tony_stark",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1787595790489,
+      "tag": "0001_wonderful_skreet",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1787603782411,
+      "tag": "0002_strange_tenebrous",
+      "breakpoints": true
+    }
+  ]
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { requireClubAdministrator } from "../administracion/access";
 import BikerQuestionnaire from "../components/biker-questionnaire";
 import { club } from "../data/chilangos";
 import { bikerQuestionCount } from "../data/questionnaire";
@@ -15,7 +16,11 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title, description, images: ["/og.png"] },
 };
 
-export default function QuestionnairePage() {
+export const dynamic = "force-dynamic";
+
+export default async function QuestionnairePage() {
+  await requireClubAdministrator("/cuestionario");
+
   return (
     <main className="questionnaire-page">
       <header className="questionnaire-topbar section-shell">

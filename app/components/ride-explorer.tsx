@@ -28,16 +28,19 @@ export default function RideExplorer({ rides }: { rides: Ride[] }) {
         <span className="ride-count">{filtered.length} {filtered.length === 1 ? "rodada" : "rodadas"}</span>
       </div>
       <div className="ride-list">
+        <div className="ride-table-heading" aria-hidden="true"><span>FECHA · RODADA</span><span>SALIDA</span><span>DESTINO · ESTADO</span><span>IDA APROX.</span><span>IDA Y VUELTA</span><span /></div>
         {filtered.map((ride) => (
           <article className="ride-row" key={`${ride.date}-${ride.destination}`}>
-            <time className="ride-date" dateTime={ride.date}>{formatter.format(new Date(`${ride.date}T12:00:00Z`))}</time>
-            <div className="ride-destination"><h3>{ride.destination}</h3><p>{ride.title} · {ride.state}</p></div>
-            <span className="ride-km">{ride.roundTripKm} km</span>
+            <div className="ride-date-group"><time className="ride-date" dateTime={ride.date}>{formatter.format(new Date(`${ride.date}T12:00:00Z`))}</time><span>{ride.title}</span></div>
+            <div className="ride-start"><span className="ride-mobile-label">SALIDA</span><strong>{ride.meetingPoint}</strong></div>
+            <div className="ride-destination"><h3>{ride.destination}</h3><p>{ride.state}</p></div>
+            <span className="ride-km ride-one-way"><span className="ride-mobile-label">IDA</span>{ride.oneWayKm.toLocaleString("es-MX")} km</span>
+            <span className="ride-km ride-total"><span className="ride-mobile-label">TOTAL</span>{ride.roundTripKm.toLocaleString("es-MX")} km</span>
             <a className="ride-map" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${ride.destination}, ${ride.state}, México`)}`} target="_blank" rel="noreferrer" aria-label={`Ver ${ride.destination} en Google Maps`}>↗</a>
           </article>
         ))}
       </div>
-      <p className="data-caption">Archivo histórico documentado entre enero de 2023 y enero de 2025. Las distancias corresponden a recorridos aproximados de ida y vuelta.</p>
+      <p className="data-caption">Archivo histórico documentado entre enero de 2023 y agosto de 2026. Las distancias son aproximadas: se muestra el trayecto de ida y el total estimado de ida y vuelta. Cuando no tenemos confirmado el punto de salida, se indica expresamente.</p>
     </div>
   );
 }

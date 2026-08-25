@@ -1,0 +1,21 @@
+CREATE TABLE `ride_safety_submissions` (
+	`id` text PRIMARY KEY NOT NULL,
+	`full_name` text NOT NULL,
+	`alias` text NOT NULL,
+	`phone` text NOT NULL,
+	`email` text,
+	`birth_date` text NOT NULL,
+	`blood_type` text,
+	`medical_notes` text,
+	`emergency_contact_name` text NOT NULL,
+	`emergency_contact_phone` text NOT NULL,
+	`health_institution` text,
+	`insurance_active` text NOT NULL,
+	`motorcycle_model` text NOT NULL,
+	`motorcycle_year` text,
+	`engine_cc` text,
+	`plates` text,
+	`policy_details` text,
+	`consent` text NOT NULL,
+	`created_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL
+);

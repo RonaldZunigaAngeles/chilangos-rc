@@ -10,6 +10,7 @@ const pages = [
     title: /<title>Tu historia biker \| Chilangos RC<\/title>/,
   },
 ];
+const exportedPaths = new Set(pages.map((page) => page.path));
 
 for (const page of pages) {
   const response = await worker.fetch(
@@ -31,6 +32,19 @@ for (const page of pages) {
   const html = await response.text();
   assert.match(html, page.title);
   assert.match(html, /chilangosrc\.com/);
+
+  if (page.path === "/") {
+    for (const match of html.matchAll(/href="(\/integrantes\/[^"?#]+)"/g)) {
+      const profilePath = match[1];
+      if (exportedPaths.has(profilePath)) continue;
+      exportedPaths.add(profilePath);
+      pages.push({
+        path: profilePath,
+        file: `${profilePath.slice(1)}/index.html`,
+        title: /<title>[^<]+ \| Chilangos RC<\/title>/,
+      });
+    }
+  }
 
   const output = new URL(`../dist/client/${page.file}`, import.meta.url);
   await mkdir(new URL("./", output), { recursive: true });
