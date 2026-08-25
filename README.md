@@ -6,9 +6,27 @@ de diciembre de 2022.
 ## Qué incluye
 
 - Historia e identidad del club.
-- Fundadores y miembros registrados.
+- Directorio de siete fundadores, 14 integrantes oficiales y dos prospectos.
+- Biografías individuales en `/integrantes/ronnie`, `/integrantes/adri` y las
+  rutas equivalentes para cada integrante oficial.
+- Retratos biker, pasiones, hobbies, edad opcional e historia autorizada.
+- Garage personal con fotografías de motocicletas actuales y anteriores.
+- Filosofía de convivencia, libertad, familia y seguridad de un riding club.
+- Proceso de ingreso, padrino, votación y 5,000 kilómetros compartidos.
+- Odómetro animado con kilometraje real, temporadas y siguiente meta.
+- Reconocimientos individuales a los 5, 10, 25, 50 y 100 mil kilómetros.
+- Encuentros de jueves biker, convivencia familiar y planeación de rodadas.
+- Álbumes anuales del club entre 2022 y 2026.
+- Álbumes independientes de los aniversarios 2023, 2024 y 2025.
+- Espacios preparados para la fotografía original de fundadores, el parche y
+  el chaleco oficial.
 - Bitácora filtrable con 22 rodadas históricas.
+- Rutas destacadas con acceso directo a Google Maps.
 - Explorador con 50 destinos y filtro de pueblos mágicos.
+- Pasaporte interactivo con los 177 Pueblos Mágicos de México, estados y visitas verificadas.
+- Mapa geográfico con marcadores reales de rodadas y destinos pendientes agrupados por estado.
+- Garage técnico con presión de llantas, servicios Harley, lavado, acabados y productos.
+- Sección de colaboraciones para talleres, restaurantes y negocios aliados.
 - Chilangos Awards.
 - Cuestionario narrativo para conocer la historia biker de cada integrante.
 - Catálogo de mercancía preparado para enlaces de Mercado Pago.
@@ -24,14 +42,56 @@ de diciembre de 2022.
 
 La información editable está en `app/data/chilangos.ts`:
 
-- `founders` y `crew`: integrantes y motocicletas.
+- `founders`, `crew` y `prospects`: fundadores, integrantes y prospectos.
+- `membershipKilometers`: kilómetros compartidos necesarios para el ingreso.
+- `individualPatchMilestones`: reconocimientos por kilometraje individual.
 - `rides`: rodadas, fechas, destinos y kilómetros.
 - `destinations`: catálogo de destinos.
 - `products`: artículos y enlaces de pago.
 - `club`: dominio y cuentas oficiales.
+- `app/data/club-life.ts`: álbumes, rutas destacadas, consejos y categorías
+  de colaboración.
+- `app/data/biker-profiles.ts`: biografías, padrinos, partners, motocicletas y
+  fotografías autorizadas de cada integrante.
+- `app/data/club-culture.ts`: convivencia, proceso de ingreso y jueves biker.
+- `app/data/pueblos-magicos.ts`: padrón de 177 pueblos, coordenadas regionales y
+  visitas identificadas únicamente desde las rodadas documentadas.
+- `app/data/harley-guide.ts`: guía de mantenimiento, productos y fuentes
+  oficiales de Harley-Davidson.
 
 No publiques teléfonos, domicilios, placas, pólizas, expedientes médicos,
 contactos de emergencia ni otros datos personales del archivo original.
+
+## Fotografías, biografías y aliados
+
+- Las fotografías se guardan por año en `public/albums/` y se registran en
+  `app/data/club-life.ts`; consulta `public/albums/README.md` para ver el formato.
+- Los retratos y las motocicletas se organizan dentro de `public/members/`;
+  consulta `public/members/README.md`.
+- Las fotografías de aniversarios se guardan dentro de `public/anniversaries/`;
+  consulta `public/anniversaries/README.md`.
+- La fotografía fundacional, el parche y el chaleco se colocan dentro de
+  `public/heritage/`; consulta `public/heritage/README.md`.
+- Las biografías de integrantes permanecen pendientes hasta recibir respuestas
+  y autorización mediante `/cuestionario`.
+- Los negocios aliados no aparecen como convenios activos hasta contar con un
+  acuerdo real y verificable.
+- Milwaukee Bar Tlaxcala se identifica como espacio con presencia de los
+  colores del club, sin anunciar descuentos o patrocinios inexistentes.
+- El kilometraje proviene de las rodadas históricas documentadas; no utiliza
+  ubicación ni rastreo de los integrantes.
+- Los 5,000 kilómetros para el ingreso se recorren con el grupo. Los distintivos
+  por kilometraje personal incluyen también rodadas individuales.
+- La ceremonia, los materiales internos y las ubicaciones exactas de reuniones
+  permanecen privados; no se publican en el sitio.
+- Un pueblo aparece como visitado solamente cuando está mencionado en `rides`;
+  agregarlo al catálogo de destinos no constituye evidencia de visita.
+- Los marcadores numerados del mapa agrupan pueblos pendientes por estado. Solo
+  los pueblos visitados muestran una ubicación individual aproximada.
+- La presión de llantas se compara contra valores ingresados por cada biker a
+  partir de su manual; nunca se inventan cifras universales.
+- El mapa utiliza Leaflet y mapas de OpenStreetMap, cargados únicamente en el
+  navegador y con atribución visible.
 
 ## Cuestionario para integrantes
 
