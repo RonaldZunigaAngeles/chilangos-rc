@@ -52,6 +52,13 @@ async function renderRoute(path) {
   return response.text();
 }
 
+function setQuestionnairePrivacy(form, { profile = "si", photos = "si", social = "no" } = {}) {
+  form.set("avisoPrivacidad", "acepto");
+  form.set("autorizacionPerfilWeb", profile);
+  form.set("autorizacionFotosWeb", photos);
+  form.set("autorizacionRedesSociales", social);
+}
+
 test("la portada temporal presenta al club y dirige únicamente a la biografía y las fotos", async () => {
   const html = await renderRoute("/");
 
@@ -67,6 +74,7 @@ test("la portada temporal presenta al club y dirige únicamente a la biografía 
   assert.doesNotMatch(html, /Escribir mi historia/);
   assert.match(html, /href="\/cuestionario-integrantes"/);
   assert.match(html, /Nada se publica automáticamente/);
+  assert.match(html, /href="\/aviso-de-privacidad"/);
   assert.match(html, /sesión fotográfica individual/);
   assert.match(html, /fotos que más te gusten de tu moto actual/);
   assert.match(html, /src="\/heritage\/fundadores-first-6\.jpg"/);
@@ -80,23 +88,38 @@ test("la portada temporal presenta al club y dirige únicamente a la biografía 
   assert.match(decodeURIComponent(whatsapp[1]), /fotos favoritas de mis motocicletas para mi biografía/);
 });
 
+test("el aviso de privacidad explica el tratamiento, las autorizaciones y los derechos ARCO", async () => {
+  const html = await renderRoute("/aviso-de-privacidad");
+
+  assert.match(html, /<title>Aviso de Privacidad \| Chilangos RC<\/title>/);
+  assert.match(html, /Ronald Antonio Zúñiga Ángeles/);
+  assert.match(html, /Ficha privada de seguridad/);
+  assert.match(html, /Nada se publica automáticamente/);
+  assert.match(html, /perfil web, las fotografías del sitio y el uso de material/);
+  assert.match(html, /Derechos ARCO y revocación/);
+  assert.match(html, /20 días hábiles/);
+  assert.match(html, /sosializarte@gmail\.com/);
+});
+
 test("renderiza la identidad completa de Chilangos RC sin datos personales", async () => {
   const html = await renderRoute("/sitio-completo");
 
   assert.match(html, /<title>Chilangos RC<\/title>/);
   assert.match(html, /https:\/\/chilangosrc\.com/);
   assert.match(html, /<h1 class="hero-club-title"><span>CHILANGOS<\/span> <strong>RC<\/strong><\/h1>/);
+  assert.doesNotMatch(html, /class="hero-actions"/);
   assert.match(html, /La familia/);
-  assert.match(html, /Quienes encendieron/);
-  assert.match(html, /Toda la banda/);
-  assert.match(html, /Prospectos/);
-  assert.match(html, /Somos <!-- -->15<!-- --> integrantes oficiales/);
-  assert.match(html, /siete personas fundadoras y ocho historias/);
+  assert.match(html, /Fundadores, miembros/);
+  assert.match(html, /FUNDADORES/);
+  assert.match(html, /MIEMBROS/);
+  assert.match(html, /PROSPECTOS/);
+  assert.match(html, /La banda reúne siete fundadores, siete miembros y dos prospectos activos/);
   assert.match(html, /RETRATO OFICIAL/);
   assert.match(html, /href="\/integrantes\/ronnie"/);
   assert.match(html, /href="\/integrantes\/adri"/);
   assert.match(html, /href="\/integrantes\/fatima"/);
   assert.match(html, /href="\/integrantes\/gi"/);
+  assert.match(html, /href="\/integrantes\/fer-fucho"/);
   assert.match(html, /Siete personas encendieron el primer motor/);
   assert.doesNotMatch(html, /Adri estuvo presente desde la primera rodada/);
   assert.match(html, /Fer Fucho/);
@@ -105,22 +128,39 @@ test("renderiza la identidad completa de Chilangos RC sin datos personales", asy
   assert.match(html, /La convivencia va primero/);
   assert.match(html, /Sin cuotas periódicas/);
   assert.match(html, /El parche no se compra/);
+  assert.match(html, /src="\/heritage\/adri-full-patch\.webp"/);
+  assert.match(html, /Adri de espalda portando el full patch oficial/);
+  assert.doesNotMatch(html, /biker-patch-logo/);
   assert.match(html, /5,000/);
   assert.match(html, /Esperar la votación/);
   assert.match(html, /ceremonia simbólica y privada/);
+  assert.doesNotMatch(html, /PROSPECTOS EN CAMINO AL FULL PATCH/);
+  assert.doesNotMatch(html, /Cada prospecto cubre su chaleco y parche/);
   assert.match(html, /El odómetro de la hermandad/);
-  assert.match(html, /Kilometraje registrado en tu odómetro/);
-  assert.match(html, /Tus méritos/);
+  assert.doesNotMatch(html, /Kilometraje registrado en tu odómetro/);
+  assert.match(html, /MAPA DE MÉRITOS/);
+  assert.match(html, /Tu historia/);
   assert.match(html, /eventos especiales/);
   assert.match(html, /100<!-- --> <em>MIL<\/em>/);
   assert.match(html, /Jueves biker/);
   assert.match(html, /fortalecer la camaradería/);
   assert.match(html, /organizamos lo que viene/);
+  assert.match(html, /Así rodamos/);
+  assert.match(html, /FORMACIÓN ESCALONADA/);
+  assert.match(html, /FILA INDIVIDUAL/);
+  assert.match(html, /Herramienta básica/);
+  assert.match(html, /Inflador/);
+  assert.match(html, /Arrancador de batería/);
+  assert.match(html, /12 segundos/);
+  assert.match(html, /CERO ALCOHOL Y CERO SUSTANCIAS AL MANUBRIO/);
+  assert.match(html, /Seguro de cobertura amplia y ficha privada actualizada/);
   assert.match(html, /Arango Riders Club/);
   assert.match(html, /instagram\.com\/arangoriders/);
   assert.match(html, /Klandestino Garage/);
   assert.match(html, /instagram\.com\/klandestino_garage/);
   assert.match(html, /La Disculpita/);
+  assert.match(html, /Café El Jarocho/);
+  assert.match(html, /División del Norte 2761/);
   assert.match(html, /Próxima meta/);
   assert.match(html, /9,790/);
   assert.match(html, /1,550<!-- --> km/);
@@ -137,20 +177,38 @@ test("renderiza la identidad completa de Chilangos RC sin datos personales", asy
   assert.match(html, /src="\/heritage\/fundadores-first-6\.jpg"/);
   assert.match(html, /Fotografía original de los primeros seis fundadores de Chilangos RC/);
   assert.doesNotMatch(html, /Fotografía original de los primeros seis, pendiente de digitalizar/);
-  assert.match(html, /Nuestros colores, nuestra historia/);
-  assert.match(html, /Tres aniversarios/);
+  assert.match(html, /Portar el chaleco significa representar a Chilangos/);
+  assert.match(html, /sus acciones también hablan por la familia/);
+  assert.match(html, /No concede rango ni privilegios/);
+  assert.match(html, /IDENTIDAD/);
+  assert.match(html, /RESPETO/);
+  assert.match(html, /COMPROMISO/);
+  assert.match(html, /HERMANDAD/);
+  assert.match(html, /motorcycle-gear-biker-style-history/);
+  assert.match(html, /Cuatro aniversarios/);
   assert.match(html, /Primer aniversario/);
+  assert.match(html, /src="\/anniversaries\/2025\/portada\.webp"/);
+  assert.match(html, /class="anniversary-editorial-card"/);
+  assert.match(html, /width="1536" height="1152"/);
+  assert.match(html, /Tres años, una misma familia/);
+  assert.match(html, /Parque Nacional La Marquesa · Estado de México/);
   assert.match(html, /Segundo aniversario/);
   assert.match(html, /Tercer aniversario/);
-  assert.match(html, /Fotos originales pendientes de incorporar/);
+  assert.match(html, /Cuarto aniversario/);
+  assert.match(html, /Fecha y sede por confirmar/);
+  assert.match(html, /Portada original pendiente de incorporar/);
   assert.match(html, /ARCHIVO CHILANGO/);
-  assert.match(html, /Los caminos/);
-  assert.match(html, /Todo México/);
+  assert.match(html, /Nuestras rodadas/);
+  assert.match(html, /Año por año/);
+  assert.match(html, /Selecciona un año para consultar las salidas documentadas/);
+  assert.doesNotMatch(html, /class="featured-route-grid"/);
+  assert.match(html, /Los lugares que ya rodamos/);
   assert.match(html, /Pueblos Mágicos/);
   assert.match(html, /177/);
-  assert.match(html, /Ya rodados/);
-  assert.match(html, /Pueblos pendientes agrupados por estado/);
-  assert.match(html, /Real del Monte/);
+  assert.match(html, /Rodadas realizadas/);
+  assert.match(html, /La línea naranja punteada/);
+  assert.match(html, /caminos por descubrir/);
+  assert.doesNotMatch(html, /destinos por descubrir/);
   assert.match(html, /garage Chilango/);
   assert.match(html, /Ocho revisiones que sí aportan/);
   assert.match(html, /Llantas y presión/);
@@ -160,15 +218,23 @@ test("renderiza la identidad completa de Chilangos RC sin datos personales", asy
   assert.match(html, /Batería/);
   assert.match(html, /Correa, chasis y suspensión/);
   assert.match(html, /Tu manual tiene la última palabra/);
-  assert.match(html, /Seguro vigente y ficha privada de seguridad/);
   assert.match(html, /href="\/seguridad-en-ruta"/);
   assert.match(html, /Talleres mecánicos/);
   assert.match(html, /Restaurantes y cafeterías/);
-  assert.match(html, /Milwaukee Bar Tlaxcala/);
+  assert.match(html, /Milwaukee Tlx Biker Bar/);
+  assert.match(html, /Panotla, Tlaxcala/);
+  assert.match(html, /instagram\.com\/milwaukee\.tlx/);
+  assert.match(html, /Instagram · (?:<!-- -->)?@milwaukee\.tlx/);
+  assert.match(html, /src="\/partners\/milwaukee-chilangos\.webp"/);
   assert.match(html, /Iron Choppers/);
-  assert.match(html, /Av\. Muyuguarda 163/);
   assert.match(html, /Barrio 18, Xochimilco/);
+  assert.match(html, /instagram\.com\/chopperscycles/);
+  assert.match(html, /Instagram · (?:<!-- -->)?@chopperscycles/);
   assert.match(html, /Cómo llegar/);
+  assert.match(html, /LUGAR CON CONVENIO/);
+  assert.match(html, /Restaurante Bar El Patrón/);
+  assert.match(html, /instagram\.com\/elpatron\.ryb/);
+  assert.match(html, /Instagram · (?:<!-- -->)?@elpatron\.ryb/);
   assert.match(html, /Un nuevo punto biker en CDMX/);
   assert.match(html, /Propón una colaboración/);
   assert.match(html, /¿Quieres recibir/);
@@ -176,21 +242,32 @@ test("renderiza la identidad completa de Chilangos RC sin datos personales", asy
   assert.match(html, /WhatsApp de contacto/);
   assert.match(html, /Cuéntanos tu propuesta/);
   assert.match(html, /Enviar propuesta a Chilangos RC/);
-  assert.match(html, /nos vamos ahora/);
+  assert.match(html, /Todo lo que todavía nos llama/);
   assert.match(html, /El Fashion Biker/);
-  assert.match(html, /reconocimientos internos, simbólicos y con humor/);
+  assert.match(html, /LAS CATEGORÍAS DE LA NOCHE/);
+  assert.match(html, /Una noche para reconocer con humor/);
   assert.match(html, /No representan jerarquías ni una competencia/);
+  assert.doesNotMatch(html, /chilangos-awards-statuette/);
   assert.match(html, /Comunicados/);
-  assert.match(html, /No hay comunicados públicos vigentes/);
-  assert.match(html, /no está autorizada para presentarse como integrante/);
+  assert.match(html, /Conclusión de membresía · Rodas/);
+  assert.match(html, /Conclusión de membresía · Pituko/);
+  assert.match(html, /Conclusión de membresía · Yisus/);
+  assert.match(html, /Conclusión de membresía · Guicho/);
+  assert.match(html, /CRC-COM-2025-002/);
+  assert.match(html, /2025-09-09-rodas\.webp/);
+  assert.match(html, /Ver comunicado/);
+  const partnersPosition = html.indexOf('id="aliados"');
+  const noticesPosition = html.indexOf('id="comunicados"');
+  const shopPosition = html.indexOf('id="tienda"');
+  assert(partnersPosition > 0 && noticesPosition > partnersPosition && shopPosition > noticesPosition);
   assert.match(html, /Playera oficial/);
   assert.match(html, /chilangos-logo-original\.jpg/);
   assert.match(html, /Preguntar por WhatsApp/);
   assert.match(html, /Escríbenos por WhatsApp/);
   assert.match(html, /PRÓXIMA RODADA/);
   assert.match(html, /Fecha por confirmar/);
-  assert.match(html, /Punto de reunión ↗/);
-  assert.match(html, /Ver destino ↗/);
+  assert.doesNotMatch(html, /Punto de reunión ↗/);
+  assert.doesNotMatch(html, /Ver destino ↗/);
   assert.match(html, /wa\.me\/525572718912/);
   assert.match(html, /Sitio desarrollado por/);
   assert.match(html, /sosializarte\.com/);
@@ -204,7 +281,46 @@ test("renderiza la identidad completa de Chilangos RC sin datos personales", asy
   assert.match(html, /href="\/cuestionario"/);
   assert.doesNotMatch(html, /Biker\/Teléfono|Afiliación IMSS|Contacto de Emergencia|Seguro\/Póliza/);
   assert.doesNotMatch(html, /dec[aá]logo/i);
-  assert.doesNotMatch(html, /Pituko/);
+  assert.match(html, /Conclusión de membresía · Pituko/);
+});
+
+test("el tablero biker muestra méritos personales sin inventar kilómetros", async () => {
+  const html = await renderRoute("/sitio-completo");
+  const meritSource = await readFile(new URL("../app/components/merit-leaderboard.tsx", import.meta.url), "utf8");
+  const meritHistory = await readFile(new URL("../app/data/merit-history.ts", import.meta.url), "utf8");
+
+  assert.match(html, /HONOR EN CADA KILÓMETRO/);
+  assert.match(html, /Los kilómetros/);
+  assert.match(html, /también se llevan puestos/);
+  assert.match(html, /11<\/strong><span>bikers activos en la familia/);
+  assert.match(html, /11<\/strong><span>odómetros registrados/);
+  assert.match(html, /22<\/strong><span>méritos alcanzados/);
+  assert.match(html, /20<\/strong><span>parches entregados/);
+  assert.match(html, /odómetros registrados/);
+  assert.match(html, /méritos alcanzados/);
+  assert.match(html, /parches entregados/);
+  assert.match(html, /5K/);
+  assert.match(html, /10K/);
+  assert.match(html, /25K/);
+  assert.match(html, /50K/);
+  assert.match(html, /100K/);
+  assert.match(html, /24,723/);
+  assert.match(html, /30,153/);
+  assert.doesNotMatch(html, /8,047/);
+  assert.match(html, /LECTURA PENDIENTE/);
+  assert.match(html, /SIN ACTIVIDAD/);
+  assert.match(html, /Fer Fucho/);
+  assert.match(html, /Gi/);
+  assert.match(html, /Adri(?:<!-- -->)? · (?:<!-- -->)?Fátima/);
+  assert.match(html, /No son rangos ni una competencia/);
+  assert.match(html, /href="#meritos"/);
+  assert.match(meritSource, /className="merit-rider-scale"/);
+  assert.match(meritSource, /Metas de \$\{profile\.alias\}/);
+  assert.match(meritHistory, /"ronnie-roadster", "Roadster", 908, 25_631, "km"/);
+  assert.match(meritHistory, /"seb-sportster-1200", "Sportster 1200", 4_000, 22_736, "mi"/);
+  assert.match(meritHistory, /"isra-ultra-clasic", "Ultra Clasic", 35_635, 40_635, "km"/);
+  assert.doesNotMatch(meritSource, /merit-wall-scale/);
+  assert.doesNotMatch(meritSource, /merit-prospect-section/);
 });
 
 test("la identidad usa el lema del club, evita numeraciones decorativas y reconoce el origen de WhatsApp", async () => {
@@ -248,7 +364,33 @@ test("la fotografía de fundadores conserva su proporción y las tarjetas evitan
   for (const label of ["ASÍ RODAMOS", "FAMILIA CHILANGA", "JUEVES ENTRE CHILANGOS", "MÉRITO CHILANGO", "CELEBRACIÓN CHILANGA"]) {
     assert.doesNotMatch(cards, new RegExp(label));
   }
-  assert.equal((home.match(/CAMINO AL FULL PATCH/g) ?? []).length, 1);
+  assert.equal((home.match(/CAMINO AL FULL PATCH/g) ?? []).length, 0);
+});
+
+test("las miniaturas de integrantes conservan el retrato vertical sin perder nitidez", async () => {
+  const [styles, directory, profiles, sebThumbnail, ronnieThumbnail, ruloThumbnail, rafaThumbnail] = await Promise.all([
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/member-directory.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/data/biker-profiles.ts", import.meta.url), "utf8"),
+    readFile(new URL("../public/portraits/seb-card-v2.webp", import.meta.url)),
+    readFile(new URL("../public/portraits/ronnie-card.webp", import.meta.url)),
+    readFile(new URL("../public/portraits/rulo-card.webp", import.meta.url)),
+    readFile(new URL("../public/portraits/rafa-card.webp", import.meta.url)),
+  ]);
+
+  assert.match(styles, /\.biker-portrait-frame \{[^}]*aspect-ratio: 4 \/ 5[^}]*overflow: hidden/);
+  assert.match(styles, /\.biker-portrait-frame > img \{[^}]*height: 100%[^}]*object-position: center top[^}]*image-rendering: auto/);
+  assert.doesNotMatch(styles, /\.biker-portrait-frame > img \{[^}]*filter:/);
+  assert.match(directory, /profile\.thumbnail \?\? profile\.portrait/);
+  assert.match(directory, /width=\{640\} height=\{800\}/);
+  assert.match(profiles, /thumbnail: "\/portraits\/seb-card-v2\.webp"/);
+  assert.match(profiles, /thumbnail: "\/portraits\/ronnie-card\.webp"/);
+  assert.match(profiles, /thumbnail: "\/portraits\/rulo-card\.webp"/);
+  assert.match(profiles, /thumbnail: "\/portraits\/rafa-card\.webp"/);
+  assert(sebThumbnail.length > 25000);
+  assert(ronnieThumbnail.length > 40000);
+  assert(ruloThumbnail.length > 30000);
+  assert(rafaThumbnail.length > 30000);
 });
 
 test("el calendario muestra los quince cumpleaños sin divulgar años de nacimiento", async () => {
@@ -265,7 +407,7 @@ test("el calendario muestra los quince cumpleaños sin divulgar años de nacimie
     assert.match(html, new RegExp(`<h3>${month}</h3>`));
   }
 
-  for (const alias of ["Adri", "Gi", "Fátima", "Ángel", "Rafa", "Charly", "Isra", "Fer", "Seb", "Richard", "Mac", "Austria", "Ronnie", "Alej", "Rulo"]) {
+  for (const alias of ["Adri", "Gi", "Fátima", "Ángel", "Rafa", "Charly", "Inra", "Fer", "Seb", "Richard", "Mac", "Austria", "Ronnie", "Alej", "Rulo"]) {
     assert.match(html, new RegExp(`Agregar el cumpleaños de ${alias} a Google Calendar`));
   }
 
@@ -273,26 +415,26 @@ test("el calendario muestra los quince cumpleaños sin divulgar años de nacimie
   assert.match(html, /sin publicar edades ni años de nacimiento/);
 });
 
-test("el explorador explica sus filtros y el mapa prioriza visualmente las rodadas documentadas", async () => {
+test("el mapa separa las rodadas del pasaporte nacional y traza la ruta desde CDMX", async () => {
   const html = await renderRoute("/sitio-completo");
   const mapSource = await readFile(new URL("../app/components/mexico-magic-map.tsx", import.meta.url), "utf8");
+  const styleSource = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
 
-  assert.match(html, /Ideas para la próxima rodada/);
-  assert.match(html, /Hasta 100 km/);
-  assert.match(html, /De 101 a 200 km/);
-  assert.match(html, /Más de 200 km/);
-  assert.match(html, /destinos encontrados/);
-  assert.match(html, /Este explorador sirve para proponer y comparar destinos/);
-  assert.match(html, /NUESTROS PUNTOS NARANJAS/);
-  assert.match(html, /círculos naranjas muestran pueblos que Chilangos RC ya visitó/);
-  assert.match(html, /YA RODADO/);
-  assert.match(html, /Todos los estados \(32\)/);
-  assert.match(html, /Estados que ya hemos rodado/);
-  assert.match(html, /Estados por descubrir/);
-  assert.match(mapSource, /stateScope/);
-  assert.match(mapSource, /visitedStates/);
-  assert.match(mapSource, /className: "visited-map-icon"/);
-  assert.match(mapSource, /zIndexOffset: 1800/);
+  assert.match(html, /Mapa de carretera/);
+  assert.match(html, /Rodadas realizadas/);
+  assert.match(html, /177 Pueblos Mágicos/);
+  assert.match(html, /DESTINO SELECCIONADO/);
+  assert.match(html, /Val’Quirico/);
+  assert.match(html, /La ruta naranja se calcula sobre carreteras disponibles/);
+  assert.doesNotMatch(html, /Este explorador sirve para proponer y comparar destinos/);
+  assert.match(mapSource, /fetchRoadRoute/);
+  assert.match(mapSource, /router\.project-osrm\.org\/route\/v1\/driving/);
+  assert.match(mapSource, /leaflet\.polyline\(roadRoute/);
+  assert.doesNotMatch(mapSource, /leaflet\.polyline\(\[cdmx, selected\.coordinate\]/);
+  assert.match(mapSource, /dashArray: "9 11"/);
+  assert.match(mapSource, /visited-skull-icon/);
+  assert.match(styleSource, /chilangos-skull\.webp/);
+  assert.match(mapSource, /pueblosMagicos\.forEach/);
 });
 
 test("la bitácora incluye únicamente rodadas confirmadas y actualiza los kilómetros de 2025 y 2026", async () => {
@@ -328,6 +470,8 @@ test("la portada prioriza el nombre del club y evita logotipos de fondo forzados
   assert.doesNotMatch(home, /section-logo-watermark|hero-logo-watermark|thursday-logo-watermark/);
   assert.match(styles, /font-family: "Chilangos Western"/);
   assert.match(styles, /\.hero \{[^\n]*background: #080808/);
+  assert.match(styles, /\.topbar \{[^\n]*display: grid/);
+  assert.match(styles, /\.desktop-nav \{[^\n]*justify-content: center/);
   assert(font.length > 10000);
 });
 
@@ -397,32 +541,38 @@ test("el formulario valida y guarda las propuestas de colaboración", async () =
   delete globalThis.__chilangosTestCloudflareEnv.DB;
 });
 
-test("el padrón reconoce siete fundadores, ocho integrantes y kilometraje personal", async () => {
+test("el padrón reconoce siete fundadores, siete integrantes y dos prospectos", async () => {
   const roster = await readFile(new URL("../app/data/chilangos.ts", import.meta.url), "utf8");
   const culture = await readFile(new URL("../app/data/club-culture.ts", import.meta.url), "utf8");
   const profiles = await readFile(new URL("../app/data/biker-profiles.ts", import.meta.url), "utf8");
 
   assert.match(roster, /name: "Adri", motorcycle: "Desde la primera rodada", role: "Fundadora"/);
-  assert.match(roster, /export const prospects = \["Fer Fucho"\]/);
+  assert.match(roster, /export const prospects = \["Fer Fucho", "Gi"\]/);
   assert.match(roster, /export const membershipKilometers = 5000/);
   assert.match(roster, /\[5000, 10000, 25000, 50000, 100000\]/);
   assert.doesNotMatch(roster, /Pituko|"Rodas"/);
-  assert.match(roster, /"Fátima", "Gi"/);
+  assert.match(roster, /"Fátima"/);
+  assert.doesNotMatch(roster, /name: "Gi", motorcycle:/);
   assert.match(profiles, /slug: "adri", alias: "Adri", founder: true, partner: true/);
   assert.match(profiles, /slug: "fatima", alias: "Fátima", founder: false, partner: true/);
   assert.match(profiles, /slug: "richard", alias: "Richard", founder: false, partner: false, sponsor: null/);
-  assert.match(profiles, /slug: "gi", alias: "Gi", founder: false/);
-  assert.match(profiles, /alias: "Fer Fucho", sponsor: "Austria"/);
+  assert.match(profiles, /slug: "gi"[\s\S]*prospect: true[\s\S]*sponsor: "Fer"[\s\S]*model: "Sportster 883"/);
+  assert.match(profiles, /slug: "fer-fucho", alias: "Fer Fucho", founder: false, partner: false, prospect: true, sponsor: "Austria"/);
   assert.match(culture, /Los 5,000 kilómetros de ingreso deben compartirse/);
   assert.match(culture, /No operamos con presidentes, sargentos de armas ni jerarquías/);
   assert.doesNotMatch(culture, /dec[aá]logo/i);
 });
 
-test("las biografías tienen metadatos propios y garage sin datos sensibles ni padrinos", async () => {
+test("las biografías tienen metadatos propios, garage y perfiles activos de prospectos", async () => {
   const ronnie = await renderRoute("/integrantes/ronnie");
   const adri = await renderRoute("/integrantes/adri");
   const fatima = await renderRoute("/integrantes/fatima");
+  const richard = await renderRoute("/integrantes/richard");
+  const seb = await renderRoute("/integrantes/seb");
+  const rulo = await renderRoute("/integrantes/rulo");
+  const rafa = await renderRoute("/integrantes/rafa");
   const gi = await renderRoute("/integrantes/gi");
+  const ferFucho = await renderRoute("/integrantes/fer-fucho");
 
   assert.match(ronnie, /<title>Ronnie \| Chilangos RC<\/title>/);
   assert.match(ronnie, /property="og:title" content="Ronnie \| Chilangos RC"/);
@@ -430,7 +580,10 @@ test("las biografías tienen metadatos propios y garage sin datos sensibles ni p
   assert.match(ronnie, /Harley-Davidson<!-- --> <!-- -->Roadster/);
   assert.match(ronnie, /Las motos que/);
   assert.match(ronnie, /Dato opcional/);
-  assert.doesNotMatch(ronnie, /property="og:image"/);
+  assert.match(ronnie, /PROFESIÓN/);
+  assert.match(ronnie, /Por compartir/);
+  assert.match(ronnie, /property="og:image" content="https:\/\/chilangosrc\.com\/portraits\/ronnie-studio\.webp"/);
+  assert.match(ronnie, /src="\/portraits\/ronnie-studio\.webp"/);
   assert.doesNotMatch(ronnie, /nombre completo|domicilio|teléfono|fecha de nacimiento/i);
   assert.doesNotMatch(ronnie, /padrino/i);
 
@@ -441,23 +594,69 @@ test("las biografías tienen metadatos propios y garage sin datos sensibles ni p
   assert.doesNotMatch(adri, /Harley-Davidson/);
 
   assert.match(fatima, /<title>Fátima \| Chilangos RC<\/title>/);
-  assert.match(fatima, /Integrante · Partner/);
+  assert.match(fatima, /Miembro · Partner/);
   assert.match(fatima, /Partner de(?:<!-- -->)?\s*Austria/);
   assert.doesNotMatch(fatima, /Harley-Davidson/);
+  assert.match(richard, /<title>Richard \| Chilangos RC<\/title>/);
+  assert.doesNotMatch(richard, /padrino/i);
+
+  assert.match(seb, /<title>Seb \| Chilangos RC<\/title>/);
+  assert.match(seb, /Supervisor/);
+  assert.match(seb, /30 años/);
+  assert.match(seb, /diciembre de 2023/);
+  assert.match(seb, /Sportster Low XL 1200/);
+  assert.match(seb, /Megan/);
+  assert.match(seb, /Chachalacas, Veracruz/);
+  assert.match(seb, /Canadá/);
+  assert.match(seb, /Videojuegos/);
+  assert.match(seb, /Rey del choque/);
+  assert.match(seb, /CHILANGOS AWARDS · (?:<!-- -->)?2024/);
+  assert.match(seb, /property="og:image" content="https:\/\/chilangosrc\.com\/portraits\/seb-studio-v2\.webp"/);
+  assert.match(seb, /src="\/portraits\/seb-studio-v2\.webp"/);
+  assert.doesNotMatch(seb, /nombre completo|domicilio|teléfono|fecha de nacimiento/i);
+
+  assert.match(rulo, /<title>Rulo \| Chilangos RC<\/title>/);
+  assert.match(rulo, /property="og:image" content="https:\/\/chilangosrc\.com\/portraits\/rulo-studio\.webp"/);
+  assert.match(rulo, /src="\/portraits\/rulo-studio\.webp"/);
+
+  assert.match(rafa, /<title>Rafa \| Chilangos RC<\/title>/);
+  assert.match(rafa, /property="og:image" content="https:\/\/chilangosrc\.com\/portraits\/rafa-studio\.webp"/);
+  assert.match(rafa, /src="\/portraits\/rafa-studio\.webp"/);
+
   assert.match(gi, /<title>Gi \| Chilangos RC<\/title>/);
-  assert.doesNotMatch(gi, /padrino/i);
+  assert.match(gi, /Prospecto activo/);
+  assert.match(gi, /Sportster 883/);
+  assert.match(gi, /APADRINADO POR/);
+  assert.match(ferFucho, /<title>Fer Fucho \| Chilangos RC<\/title>/);
+  assert.match(ferFucho, /En camino al full patch/);
 });
 
-test("el sitio enlaza únicamente los quince perfiles oficiales", async () => {
+test("el sitio enlaza los catorce perfiles oficiales y las dos biografías de prospectos", async () => {
   const html = await renderRoute("/sitio-completo");
   const slugs = new Set(Array.from(html.matchAll(/href="\/integrantes\/([^"?#]+)"/g), (match) => match[1]));
 
-  assert.equal(slugs.size, 15);
+  assert.equal(slugs.size, 16);
   assert(slugs.has("ronnie"));
   assert(slugs.has("fatima"));
   assert(slugs.has("richard"));
   assert(slugs.has("gi"));
-  assert(!slugs.has("fer-fucho"));
+  assert(slugs.has("fer-fucho"));
+});
+
+test("los álbumes usan una portada local y enlazan la colección completa sin cargarla en la página", async () => {
+  const [yearArchive, anniversaries, data] = await Promise.all([
+    readFile(new URL("../app/components/year-archive.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/anniversary-gallery.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/data/club-life.ts", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(data, /facebookUrl\?: string \| null/);
+  assert.match(yearArchive, /const cover = current\?\.photos\[0\]/);
+  assert.match(yearArchive, /Ver álbum completo en Facebook/);
+  assert.doesNotMatch(yearArchive, /current\.photos\.map/);
+  assert.match(anniversaries, /const cover = current\?\.photos\[0\]/);
+  assert.match(anniversaries, /Ver álbum completo en Facebook/);
+  assert.doesNotMatch(anniversaries, /current\.photos\.map/);
 });
 
 test("renderiza las 56 preguntas biker con autorización individual y privacidad", async () => {
@@ -488,6 +687,8 @@ test("el cuestionario interno acepta biografía y fotografías sin indexarse", a
   assert.match(html, /¡Hola, Chilango!/);
   assert.match(html, /Queremos conocer tu historia/);
   assert.match(html, /name="alias"/);
+  assert.match(html, /name="profesion"/);
+  assert.match(html, /Profesión u oficio/);
   assert.match(html, /name="biografia"/);
   assert.match(html, /name="foto"/);
   assert.match(html, /name="fotoMoto"/);
@@ -497,12 +698,17 @@ test("el cuestionario interno acepta biografía y fotografías sin indexarse", a
   assert.match(html, /name="motoAnteriorMarca0"/);
   assert.match(html, /name="motoAnteriorModelo0"/);
   assert.match(html, /name="motoAnteriorFoto0"/);
+  assert.match(html, /name="odometroActual"/);
   assert.match(html, /Película biker/);
   assert.match(html, /Terminator 2/);
   assert.match(html, /Sons of Anarchy/);
   assert.match(html, /moto que no cambiarías por nada/i);
   assert.match(html, /CHILANGOS AWARDS/);
-  assert.match(html, /name="autorizacionPublicacion"/);
+  assert.match(html, /name="avisoPrivacidad"/);
+  assert.match(html, /name="autorizacionPerfilWeb"/);
+  assert.match(html, /name="autorizacionFotosWeb"/);
+  assert.match(html, /name="autorizacionRedesSociales"/);
+  assert.match(html, /href="\/aviso-de-privacidad"/);
   assert.match(html, /panel privado de administración/);
   assert.match(html, /nada se publica automáticamente/i);
 });
@@ -545,8 +751,9 @@ test("el formulario interno guarda respuestas y fotografías de forma privada", 
 
   const form = new FormData();
   form.set("alias", "Ronnie");
+  form.set("profesion", "Empresario y comunicador");
   form.set("biografia", "Fundador y motociclista de Chilangos RC.");
-  form.set("autorizacionPublicacion", "revisar-antes");
+  setQuestionnairePrivacy(form);
   form.set("tipoIntegrante", "biker");
   form.set("motoAnteriorMarca0", "Harley-Davidson");
   form.set("motoAnteriorModelo0", "Sportster");
@@ -574,16 +781,22 @@ test("el formulario interno guarda respuestas y fotografías de forma privada", 
   const storedAnswers = savedQueries[0].values.find((value) => typeof value === "string" && value.startsWith("{"));
   const parsed = JSON.parse(storedAnswers);
   assert.equal(parsed.previousMotorcycles.length, 1);
+  assert.equal(parsed.profession, "Empresario y comunicador");
   assert.equal(parsed.previousMotorcycles[0].model, "Sportster");
   assert.deepEqual(parsed.awards, [{ title: "El Rodador", year: "2024", story: "" }]);
   assert.equal(parsed.bikerCulture.favoriteMovie, "Terminator 2");
   assert.equal(parsed.publicationConsent, "revisar-antes");
+  assert.equal(parsed.privacyConsent.noticeVersion, "2026-08-27");
+  assert.equal(parsed.privacyConsent.acknowledged, true);
+  assert.equal(parsed.privacyConsent.profileWebsite, "si");
+  assert.equal(parsed.privacyConsent.photosWebsite, "si");
+  assert.equal(parsed.privacyConsent.socialMedia, "no");
 
   const partnerForm = new FormData();
   partnerForm.set("alias", "Fátima");
   partnerForm.set("tipoIntegrante", "partner");
   partnerForm.set("conQuienRuedas", "Austria");
-  partnerForm.set("autorizacionPublicacion", "solo-interno");
+  setQuestionnairePrivacy(partnerForm, { profile: "no", photos: "no", social: "no" });
 
   const partner = await worker.fetch(new Request("http://localhost/api/cuestionario-integrantes", {
     method: "POST",
@@ -598,9 +811,72 @@ test("el formulario interno guarda respuestas y fotografías de forma privada", 
   assert.equal(parsedPartner.ridesWith, "Austria");
   assert.deepEqual(parsedPartner.previousMotorcycles, []);
   assert.equal(parsedPartner.publicationConsent, "solo-interno");
+  assert.equal(parsedPartner.privacyConsent.profileWebsite, "no");
 
   delete globalThis.__chilangosTestCloudflareEnv.DB;
   delete globalThis.__chilangosTestCloudflareEnv.BUCKET;
+});
+
+test("el correo avisa registros reales solo cuando existe un proveedor configurado", async () => {
+  const originalFetch = globalThis.fetch;
+  const deliveries = [];
+  const savedQueries = [];
+
+  globalThis.__chilangosTestCloudflareEnv.DB = {
+    prepare(statement) {
+      return {
+        bind(...values) {
+          return {
+            async run() {
+              savedQueries.push({ statement, values });
+              return { success: true, meta: { changes: 1 } };
+            },
+          };
+        },
+      };
+    },
+  };
+  globalThis.__chilangosTestCloudflareEnv.RESEND_API_KEY = "test-key-not-real";
+  globalThis.__chilangosTestCloudflareEnv.REGISTRATION_NOTIFICATION_TO = "founder@example.test";
+  globalThis.__chilangosTestCloudflareEnv.REGISTRATION_NOTIFICATION_FROM = "Chilangos RC <avisos@example.test>";
+  globalThis.fetch = async (url, options) => {
+    deliveries.push({ url: String(url), payload: JSON.parse(options.body) });
+    return Response.json({ id: "test-email" });
+  };
+
+  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
+  workerUrl.searchParams.set("test", `${process.pid}-registration-email`);
+  const { default: worker } = await import(workerUrl.href);
+  const runtime = { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } };
+  const execution = { waitUntil() {}, passThroughOnException() {} };
+
+  async function submit(alias) {
+    const form = new FormData();
+    form.set("alias", alias);
+    setQuestionnairePrivacy(form);
+    return worker.fetch(new Request("http://localhost/api/cuestionario-integrantes", {
+      method: "POST",
+      body: form,
+    }), runtime, execution);
+  }
+
+  try {
+    assert.equal((await submit("Rafa")).status, 201);
+    assert.equal((await submit("QA_CHILANGOS_TEST")).status, 201);
+    assert.equal(savedQueries.length, 2);
+    assert.equal(deliveries.length, 1);
+    assert.equal(deliveries[0].url, "https://api.resend.com/emails");
+    assert.deepEqual(deliveries[0].payload.to, ["founder@example.test"]);
+    assert.match(deliveries[0].payload.subject, /Nueva historia Chilanga: Rafa/);
+    assert.match(deliveries[0].payload.text, /administracion\/cuestionarios/);
+    assert.doesNotMatch(JSON.stringify(deliveries[0].payload), /QA_CHILANGOS_TEST/);
+  } finally {
+    globalThis.fetch = originalFetch;
+    delete globalThis.__chilangosTestCloudflareEnv.DB;
+    delete globalThis.__chilangosTestCloudflareEnv.RESEND_API_KEY;
+    delete globalThis.__chilangosTestCloudflareEnv.REGISTRATION_NOTIFICATION_TO;
+    delete globalThis.__chilangosTestCloudflareEnv.REGISTRATION_NOTIFICATION_FROM;
+  }
 });
 
 test("el registro es público mientras el sitio oficial y las biografías permanecen privados", async () => {
@@ -656,7 +932,7 @@ test("el registro es público mientras el sitio oficial y las biografías perman
     },
   }), runtime, execution);
   assert.equal(ownerHome.status, 200);
-  assert.match(await ownerHome.text(), /Quienes encendieron/);
+  assert.match(await ownerHome.text(), /Fundadores, miembros/);
 
   const protectedOfficialForm = await worker.fetch(new Request("https://chilangosrc.com/cuestionario-integrantes", {
     headers: { accept: "text/html", host: "chilangosrc.com" },
@@ -695,6 +971,27 @@ test("el panel y las fotografías privadas requieren la cuenta propietaria", asy
   assert([302, 303, 307, 308].includes(anonymousQaPanel.status));
   assert.match(anonymousQaPanel.headers.get("location") ?? "", /signin-with-chatgpt/);
 
+  const anonymousMeritsPanel = await worker.fetch(new Request("http://localhost/administracion/meritos", {
+    headers: { accept: "text/html" },
+  }), runtime, execution);
+  assert([302, 303, 307, 308].includes(anonymousMeritsPanel.status));
+  assert.match(anonymousMeritsPanel.headers.get("location") ?? "", /signin-with-chatgpt/);
+
+  const anonymousRegistrationFeed = await worker.fetch(new Request("http://localhost/api/administracion/registros"), runtime, execution);
+  assert.equal(anonymousRegistrationFeed.status, 401);
+
+  const strangerRegistrationFeed = await worker.fetch(new Request("http://localhost/api/administracion/registros", {
+    headers: { "oai-authenticated-user-email": "otra-persona@example.com" },
+  }), runtime, execution);
+  assert.equal(strangerRegistrationFeed.status, 403);
+
+  const anonymousMeritUpdate = await worker.fetch(new Request("http://localhost/api/administracion/meritos", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ memberSlug: "ronnie", odometerKm: 5000, awardedMilestones: [5000] }),
+  }), runtime, execution);
+  assert.equal(anonymousMeritUpdate.status, 401);
+
   const anonymousPhoto = await worker.fetch(new Request("http://localhost/api/administracion/foto?registro=x&archivo=y"), runtime, execution);
   assert.equal(anonymousPhoto.status, 401);
 
@@ -709,6 +1006,169 @@ test("el panel y las fotografías privadas requieren la cuenta propietaria", asy
     body: JSON.stringify({ runId: "TEST123" }),
   }), runtime, execution);
   assert.equal(anonymousCleanup.status, 401);
+});
+
+test("el seguimiento identifica registros reales y el tablero conserva méritos privados", async () => {
+  const database = new DatabaseSync(":memory:");
+  const migrations = [
+    "0000_natural_tony_stark.sql",
+    "0001_wonderful_skreet.sql",
+    "0002_strange_tenebrous.sql",
+    "0003_old_liz_osborn.sql",
+    "0004_many_molten_man.sql",
+  ];
+
+  for (const migration of migrations) {
+    database.exec(await readFile(new URL(`../drizzle/${migration}`, import.meta.url), "utf8"));
+  }
+
+  globalThis.__chilangosTestCloudflareEnv.DB = {
+    prepare(sql) {
+      return {
+        bind(...values) {
+          const statement = database.prepare(sql);
+          return {
+            async run() {
+              const result = statement.run(...values);
+              return { success: true, meta: { changes: Number(result.changes) } };
+            },
+            async all() {
+              return { results: statement.all(...values), success: true };
+            },
+            async raw() {
+              return statement.all(...values).map((row) => Object.values(row));
+            },
+          };
+        },
+      };
+    },
+  };
+
+  database.prepare("insert into questionnaire_submissions (id, alias, answers_json) values (?, ?, ?)").run(
+    "real-ronnie",
+    "Ronnie",
+    JSON.stringify({ memberType: "biker", publicationConsent: "revisar-antes" }),
+  );
+  database.prepare("insert into questionnaire_submissions (id, alias, answers_json) values (?, ?, ?)").run(
+    "real-fatima",
+    "Fatima",
+    JSON.stringify({ memberType: "partner", publicationConsent: "solo-interno" }),
+  );
+  database.prepare("insert into questionnaire_submissions (id, alias, answers_json) values (?, ?, ?)").run(
+    "dummy",
+    "QA_CHILANGOS_TEST_DUMMY",
+    "{}",
+  );
+
+  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
+  workerUrl.searchParams.set("test", `${process.pid}-registration-merits`);
+  const { default: worker } = await import(workerUrl.href);
+  const runtime = { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } };
+  const execution = { waitUntil() {}, passThroughOnException() {} };
+
+  async function ownerFetch(path, init = {}) {
+    const headers = new Headers(init.headers);
+    headers.set("host", "registro.chilangosrc.com");
+    headers.set("oai-authenticated-user-email", "ronaldzunig@gmail.com");
+    headers.set("accept", "text/html,application/json");
+    return worker.fetch(new Request(`http://localhost${path}`, { ...init, headers }), runtime, execution);
+  }
+
+  try {
+    const registrationFeed = await ownerFetch("/api/administracion/registros");
+    assert.equal(registrationFeed.status, 200);
+    const feed = await registrationFeed.json();
+    assert.equal(feed.total, 2);
+    assert.deepEqual(feed.items.map(({ alias }) => alias).sort(), ["Fatima", "Ronnie"]);
+    assert.doesNotMatch(JSON.stringify(feed), /QA_CHILANGOS_TEST_DUMMY/);
+    assert.match(registrationFeed.headers.get("cache-control") ?? "", /private, no-store/);
+
+    const historyPanel = await ownerFetch("/administracion/cuestionarios");
+    const historyHtml = await historyPanel.text();
+    assert.equal(historyPanel.status, 200);
+    assert.match(historyHtml, /¿Quién ya contó su historia\?/);
+    assert.match(historyHtml, /2<\/strong><span>ya compartieron su historia/);
+    assert.match(historyHtml, /14<\/strong><span>todavía están pendientes/);
+    assert.match(historyHtml, /Fátima/);
+    assert.match(historyHtml, /Activar avisos de nuevos registros/);
+
+    const invalidPartner = await ownerFetch("/api/administracion/meritos", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ memberSlug: "fatima", odometerKm: 5000, awardedMilestones: [5000] }),
+    });
+    assert.equal(invalidPartner.status, 400);
+
+    const invalidPatch = await ownerFetch("/api/administracion/meritos", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ memberSlug: "gi", odometerKm: 5000, membershipStatus: "prospect", awardedMilestones: [5000] }),
+    });
+    assert.equal(invalidPatch.status, 400);
+
+    const saved = await ownerFetch("/api/administracion/meritos", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        memberSlug: "ronnie",
+        odometerKm: 12800,
+        awardedMilestones: [5000, 10000],
+        notes: "Esta nota sensible debe permanecer privada",
+      }),
+    });
+    assert.equal(saved.status, 200);
+    const savedRecord = await saved.json();
+    assert.deepEqual(savedRecord.record.awardedMilestones, [5000, 10000]);
+    assert.equal(database.prepare("select odometer_km from member_mileage_records where member_slug = ?").get("ronnie").odometer_km, 12800);
+
+    const meritsPanel = await ownerFetch("/administracion/meritos");
+    const meritsHtml = await meritsPanel.text();
+    assert.equal(meritsPanel.status, 200);
+    assert.match(meritsHtml, /<title>Méritos de carretera \| Chilangos RC<\/title>/);
+    assert.match(meritsHtml, /12,800/);
+    assert.match(meritsHtml, /5K/);
+    assert.match(meritsHtml, /ENTREGADO/);
+    assert.match(meritsHtml, /Guardar expediente y méritos/);
+    assert.match(meritsHtml, /name="robots" content="[^"]*noindex/i);
+
+    const officialPage = await ownerFetch("/sitio-completo");
+    const officialHtml = await officialPage.text();
+    assert.match(officialHtml, /12,800/);
+    assert.match(officialHtml, /parches entregados/);
+    assert.doesNotMatch(officialHtml, /Esta nota sensible debe permanecer privada/);
+
+    const form = new FormData();
+    form.set("alias", "Austria");
+    form.set("tipoIntegrante", "biker");
+    form.set("odometroActual", "25100");
+    form.set("odometroUnidad", "km");
+    setQuestionnairePrivacy(form);
+    const registration = await worker.fetch(new Request("http://localhost/api/cuestionario-integrantes", {
+      method: "POST",
+      body: form,
+    }), runtime, execution);
+    assert.equal(registration.status, 201);
+    const austriaMerit = database.prepare("select odometer_km from member_mileage_records where member_slug = ?").get("austria");
+    assert.equal(austriaMerit, undefined);
+    const austriaSubmission = database.prepare("select answers_json from questionnaire_submissions where alias = ? order by created_at desc limit 1").get("Austria");
+    const austriaAnswers = JSON.parse(austriaSubmission.answers_json);
+    assert.equal(austriaAnswers.currentMotorcycle.odometerKm, "25100");
+    assert.equal(austriaAnswers.currentMotorcycle.odometerUnit, "km");
+
+    const lowerOdometer = new FormData();
+    lowerOdometer.set("alias", "Austria");
+    lowerOdometer.set("odometroActual", "20000");
+    setQuestionnairePrivacy(lowerOdometer);
+    const lowerRegistration = await worker.fetch(new Request("http://localhost/api/cuestionario-integrantes", {
+      method: "POST",
+      body: lowerOdometer,
+    }), runtime, execution);
+    assert.equal(lowerRegistration.status, 201);
+    assert.equal(database.prepare("select odometer_km from member_mileage_records where member_slug = ?").get("austria"), undefined);
+  } finally {
+    delete globalThis.__chilangosTestCloudflareEnv.DB;
+    database.close();
+  }
 });
 
 test("el panel QA mantiene el código independiente y la ejecución protegidos", async () => {
@@ -822,6 +1282,10 @@ test("la ficha de seguridad se mantiene privada, pide seguro y no se indexa", as
   assert.match(html, /name="emergencyContactName"/);
   assert.match(html, /name="insuranceActive"/);
   assert.match(html, /name="policyDetails"/);
+  assert.match(html, /name="privacyAcknowledgement"/);
+  assert.match(html, /name="sensitiveDataConsent"/);
+  assert.match(html, /href="\/aviso-de-privacidad"/);
+  assert.doesNotMatch(html, /name="plates"/);
   assert.match(html, /No compartas el número completo/);
   assert.match(html, /No se publica automáticamente ningún dato/);
   assert.match(schema, /ride_safety_submissions/);
@@ -861,8 +1325,9 @@ test("la API guarda la ficha de seguridad y rechaza registros incompletos", asyn
       birthDate: "1983-03-24", bloodType: "O+", medicalNotes: "N/A",
       emergencyContactName: "Contacto de prueba", emergencyContactPhone: "5555550000",
       healthInstitution: "IMSS", insuranceActive: "si", motorcycleModel: "Fat Boy",
-      motorcycleYear: "2020", engineCc: "1868", plates: "TEST1",
-      policyDetails: "Aseguradora de prueba · vigente · 1234", consent: "acepto",
+      motorcycleYear: "2020", engineCc: "1868",
+      policyDetails: "Aseguradora de prueba · vigente · 1234",
+      privacyAcknowledgement: "acepto", sensitiveDataConsent: "acepto",
     }),
   }), runtime, execution);
 
@@ -907,14 +1372,18 @@ test("los álbumes explican cómo cargar fotos reales sin exponer información p
   assert.match(albums, /public\/albums\/2022/);
   assert.match(albums, /public\/albums\/2026/);
   assert.match(albums, /app\/data\/club-life\.ts/);
-  assert.match(albums, /fotografías autorizadas/);
+  assert.match(albums, /facebookUrl/);
+  assert.match(albums, /portada\.webp/);
 
   const anniversaries = await readFile(new URL("../public/anniversaries/README.md", import.meta.url), "utf8");
   const members = await readFile(new URL("../public/members/README.md", import.meta.url), "utf8");
   const heritage = await readFile(new URL("../public/heritage/README.md", import.meta.url), "utf8");
 
   assert.match(anniversaries, /public\/anniversaries\/2025/);
-  assert.match(members, /public\/members\/ronnie\/motos\/roadster\.jpg/);
+  assert.match(anniversaries, /facebookUrl/);
+  assert.match(members, /perfil\.webp/);
+  assert.match(members, /moto-anterior-10\.webp/);
+  assert.match(members, /public` → `members/);
   assert.match(heritage, /fundadores-first-6\.jpg/);
   assert.match(heritage, /parche-oficial\.jpg/);
 });
