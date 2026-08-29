@@ -1,11 +1,12 @@
-# Aniversarios de Chilangos RC
+# Portadas de aniversarios
 
-Organiza las fotografías autorizadas por aniversario:
+Cada aniversario utiliza una portada local y un enlace al álbum público de
+Facebook:
 
 ```text
-public/anniversaries/2023/primer-aniversario-01.jpg
-public/anniversaries/2024/segundo-aniversario-01.jpg
-public/anniversaries/2025/tercer-aniversario-01.jpg
+public/anniversaries/2023/portada.webp
+public/anniversaries/2024/portada.webp
+public/anniversaries/2025/portada.webp
 ```
 
 Registra después cada fotografía dentro de `anniversaryAlbums` en
@@ -13,10 +14,12 @@ Registra después cada fotografía dentro de `anniversaryAlbums` en
 
 ```ts
 photos: [{
-  src: "/anniversaries/2024/segundo-aniversario-01.jpg",
+  src: "/anniversaries/2024/portada.webp",
   title: "Segundo aniversario Chilangos RC",
-  description: "Fotografía autorizada de integrantes durante el aniversario.",
+  description: "Portada autorizada del segundo aniversario.",
 }],
+facebookUrl: "https://www.facebook.com/media/set/?set=...",
 ```
 
-Evita placas visibles, ubicaciones privadas y fotografías sin autorización.
+Usa WebP, máximo 1,600 px y menos de 400 KB. Evita placas visibles, ubicaciones
+privadas y fotografías sin autorización.

@@ -70,7 +70,10 @@ function createBiography(runId) {
     aporteClub: "Ayudar a verificar que el sitio funcione correctamente.",
     mensajeBanda: "Este registro es ficticio y puede eliminarse.",
     notas: `Ejecución automática ${runId}.`,
-    autorizacionPublicacion: "revisar-antes",
+    avisoPrivacidad: "acepto",
+    autorizacionPerfilWeb: "si",
+    autorizacionFotosWeb: "si",
+    autorizacionRedesSociales: "no",
   };
 
   for (const [name, value] of Object.entries(values)) form.set(name, value);
@@ -104,7 +107,10 @@ function createPartnerBiography(runId) {
     biografia: "Biografía ficticia para validar a quienes no tienen motocicleta propia.",
     experienciaPartner: "La hermandad también se disfruta como partner.",
     peliculaFavorita: "Wild Hogs",
-    autorizacionPublicacion: "solo-interno",
+    avisoPrivacidad: "acepto",
+    autorizacionPerfilWeb: "no",
+    autorizacionFotosWeb: "no",
+    autorizacionRedesSociales: "no",
   };
   for (const [name, value] of Object.entries(values)) form.set(name, value);
   return { alias, form };
@@ -126,9 +132,9 @@ function createSafetyRecord(runId, insured = true) {
     motorcycleModel: "Harley-Davidson Roadster QA",
     motorcycleYear: "2016",
     engineCc: "1200",
-    plates: "QA0000",
     policyDetails: insured ? "Póliza ficticia QA; sin valor real." : "",
-    consent: "acepto",
+    privacyAcknowledgement: "acepto",
+    sensitiveDataConsent: "acepto",
   };
 }
 
@@ -219,7 +225,7 @@ export async function runQuestionnaireQa(options = {}) {
 
   await step("La biografía rechaza registros sin alias", async () => {
     const form = new FormData();
-    form.set("autorizacionPublicacion", "solo-interno");
+    form.set("avisoPrivacidad", "acepto");
     const response = await call("/api/cuestionario-integrantes", { method: "POST", body: form });
     expect(response.status === 400, `El alias vacío debía rechazarse; llegó HTTP ${response.status}.`);
     return "Validación de alias correcta.";
@@ -236,7 +242,10 @@ export async function runQuestionnaireQa(options = {}) {
   await step("La biografía rechaza archivos que no sean fotografías", async () => {
     const form = new FormData();
     form.set("alias", `${TEST_PREFIX}${runId}_ARCHIVO_INVALIDO`);
-    form.set("autorizacionPublicacion", "solo-interno");
+    form.set("avisoPrivacidad", "acepto");
+    form.set("autorizacionPerfilWeb", "no");
+    form.set("autorizacionFotosWeb", "no");
+    form.set("autorizacionRedesSociales", "no");
     form.set("foto", new File(["archivo de prueba"], "prueba.txt", { type: "text/plain" }));
     const response = await call("/api/cuestionario-integrantes", { method: "POST", body: form });
     expect(response.status === 400, `El archivo inválido debía rechazarse; llegó HTTP ${response.status}.`);
