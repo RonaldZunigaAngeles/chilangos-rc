@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { requireClubAdministrator } from "../../administracion/access";
-import { bikerProfiles, getBikerProfile, getBikerRole } from "../../data/biker-profiles";
+import { allClubProfiles, getBikerProfile, getBikerRole } from "../../data/biker-profiles";
 import { club } from "../../data/chilangos";
 
 type ProfilePageProps = {
@@ -11,7 +11,7 @@ type ProfilePageProps = {
 };
 
 export function generateStaticParams() {
-  return bikerProfiles.map((profile) => ({ slug: profile.slug }));
+  return allClubProfiles.map((profile) => ({ slug: profile.slug }));
 }
 
 export async function generateMetadata({ params }: ProfilePageProps): Promise<Metadata> {
@@ -40,8 +40,8 @@ export default async function BikerProfilePage({ params }: ProfilePageProps) {
 
   if (!profile) notFound();
 
-  const index = bikerProfiles.findIndex((person) => person.slug === slug);
-  const nextProfile = bikerProfiles[(index + 1) % bikerProfiles.length];
+  const index = allClubProfiles.findIndex((person) => person.slug === slug);
+  const nextProfile = allClubProfiles[(index + 1) % allClubProfiles.length];
   const currentMotorcycle = profile.motorcycles.find((motorcycle) => motorcycle.current);
 
   return (
@@ -49,20 +49,21 @@ export default async function BikerProfilePage({ params }: ProfilePageProps) {
       <header className="profile-topbar section-shell"><Link className="wordmark" href="/">CHILANGOS <span>RC</span></Link><Link className="profile-back" href="/sitio-completo#fundadores">← Volver a la banda</Link></header>
 
       <section className="profile-hero section-shell">
-        <div className="profile-hero-copy"><p className="eyebrow">Una historia de nuestra familia</p><span className="profile-role">{getBikerRole(profile)}</span><h1>{profile.alias}<span>.</span></h1><p>{profile.partner ? "La hermandad también se vive desde el asiento de atrás. Ser partner es compartir la carretera, la convivencia y la familia Chilanga." : "Cada motociclista carga una historia distinta. Esta página conserva únicamente los recuerdos y datos que decide compartir."}</p><div className="profile-hero-meta"><span>CHILANGOS RC · CDMX</span>{profile.founder && <span>DESDE EL ORIGEN</span>}{profile.ridingPartner && <span>RUEDA CON {profile.ridingPartner.toLocaleUpperCase("es-MX")}</span>}</div></div>
+        <div className="profile-hero-copy"><p className="eyebrow">Una historia de nuestra familia</p><span className="profile-role">{getBikerRole(profile)}</span><h1>{profile.alias}<span>.</span></h1><p>{profile.prospect ? "Ser prospecto significa participar, convivir y sumar kilómetros con la banda mientras se recorre el camino hacia el full patch." : profile.partner ? "La hermandad también se vive desde el asiento de atrás. Ser partner es compartir la carretera, la convivencia y la familia Chilanga." : "Cada motociclista carga una historia distinta. Esta página conserva únicamente los recuerdos y datos que decide compartir."}</p><div className="profile-hero-meta"><span>CHILANGOS RC · CDMX</span>{profile.founder && <span>DESDE EL ORIGEN</span>}{profile.prospect && <span>PROSPECTO ACTIVO</span>}{profile.ridingPartner && <span>RUEDA CON {profile.ridingPartner.toLocaleUpperCase("es-MX")}</span>}</div></div>
         <div className="profile-portrait"><div className="profile-portrait-frame">{profile.portrait ? <Image src={profile.portrait} alt={`Retrato oficial de ${profile.alias}`} width={850} height={1100} unoptimized /> : <div className="profile-portrait-placeholder"><strong>{profile.alias.slice(0, 2).toLocaleUpperCase("es-MX")}</strong><span>RETRATO OFICIAL</span><small>Próximamente</small></div>}</div><span>FOTOGRAFÍA AUTORIZADA · CHILANGOS RC</span></div>
       </section>
 
       <section className="profile-facts section-shell" aria-label={`Información autorizada de ${profile.alias}`}>
         <div><span>EN LA BANDA</span><strong>{getBikerRole(profile)}</strong></div>
-        <div><span>NUESTRA HISTORIA</span><strong>{profile.founder ? "Desde el origen" : "Familia Chilanga"}</strong></div>
+        <div><span>NUESTRA HISTORIA</span><strong>{profile.founder ? "Desde el origen" : profile.prospect ? "En camino al full patch" : "Familia Chilanga"}</strong></div>
+        <div><span>PROFESIÓN</span><strong>{profile.profession ?? "Por compartir"}</strong></div>
         <div><span>EDAD</span><strong>{profile.age === null ? "Dato opcional" : `${profile.age} años`}</strong></div>
-        <div><span>{profile.partner ? "EN LA RODADA" : "MOTO ACTUAL"}</span><strong>{profile.partner ? `Partner de ${profile.ridingPartner}` : currentMotorcycle ? currentMotorcycle.model : "Por compartir"}</strong></div>
+        <div><span>{profile.partner ? "EN LA RODADA" : profile.prospect ? "APADRINADO POR" : "MOTO ACTUAL"}</span><strong>{profile.partner ? `Partner de ${profile.ridingPartner}` : profile.prospect ? profile.sponsor ?? "Por confirmar" : currentMotorcycle ? currentMotorcycle.model : "Por compartir"}</strong></div>
       </section>
 
       <section className="profile-story section-shell">
         <div className="section-heading"><p className="eyebrow">Debajo del casco</p><h2>Una historia<br /><em>que merece contarse.</em></h2></div>
-        <div className="profile-story-copy">{profile.biography ? <p>{profile.biography}</p> : <><p>La historia personal de {profile.alias} aparecerá aquí cuando decida contarla y autorice su publicación.</p><p>Este espacio está reservado para sus inicios, los momentos que definieron su gusto por las motocicletas y lo que significa pertenecer a Chilangos.</p></>}<a href="/cuestionario">Compartir mi historia biker ↗</a></div>
+        <div className="profile-story-copy">{profile.beginnings || profile.biography ? <>{profile.beginnings && <p>{profile.beginnings}</p>}{profile.biography && <p>{profile.biography}</p>}</> : <><p>La historia personal de {profile.alias} aparecerá aquí cuando decida contarla y autorice su publicación.</p><p>Este espacio está reservado para sus inicios, los momentos que definieron su gusto por las motocicletas y lo que significa pertenecer a Chilangos.</p></>}<a href="/cuestionario">Compartir mi historia biker ↗</a></div>
       </section>
 
       <section className="profile-passions"><div className="section-shell"><div className="section-topline"><div className="section-heading light-heading"><p className="eyebrow light">Fuera y dentro de la carretera</p><h2>Las cosas<br /><em>que encienden el motor.</em></h2></div><p className="profile-passions-note">Pasiones, hobbies y filosofía personal compartidos únicamente con autorización.</p></div><div className="profile-interest-grid"><article><span>PASIONES</span>{profile.passions.length ? profile.passions.map((passion) => <strong key={passion}>{passion}</strong>) : <p>Por compartir cuando {profile.alias} lo decida.</p>}</article><article><span>HOBBIES</span>{profile.hobbies.length ? profile.hobbies.map((hobby) => <strong key={hobby}>{hobby}</strong>) : <p>Un espacio para todo lo que también disfruta fuera de la rodada.</p>}</article><article><span>FILOSOFÍA BIKER</span>{profile.philosophy ? <strong>{profile.philosophy}</strong> : <p>Las palabras que definen su manera de vivir el camino.</p>}</article></div></div></section>
