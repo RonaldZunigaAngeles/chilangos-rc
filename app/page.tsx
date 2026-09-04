@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { requireClubAdministrator } from "./administracion/access";
 import ClubHome from "./components/club-home";
 import { club, getWhatsappLink } from "./data/chilangos";
 import { isRegistrationHostname } from "./site-access";
@@ -26,7 +25,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Home() {
   if (!(await isRegistrationHostname())) {
-    await requireClubAdministrator("/");
     return <ClubHome />;
   }
 
